@@ -1,0 +1,49 @@
+---
+title: "text-analysis: wordclout"
+format: html
+editor: visual
+---
+
+```{r}
+# library
+library(tm)
+library(wordcloud) 
+library(readtext)
+```
+
+```{r}
+# load the files
+setwd("~/Desktop/text-analysis/State of the union")
+democrat <- readtext("Democrat.docx")
+```
+
+```{r}
+# cleaning the files
+preprocess_text <- function(text) {
+  corpus <- Corpus(VectorSource(text))
+  corpus <- tm_map(corpus, content_transformer(tolower)) # Convert to lowercase
+  corpus <- tm_map(corpus, removePunctuation)           # Remove punctuation
+  corpus <- tm_map(corpus, removeNumbers)               # Remove numbers
+  corpus <- tm_map(corpus, removeWords, stopwords("en")) # Remove stopwords
+  return(corpus)
+}
+
+# Preprocess both texts
+democrat_corpus <- preprocess_text(democrat)
+```
+
+```{r}
+# create matrix
+democrat_tdm <- TermDocumentMatrix(democrat_corpus)
+
+# Convert to matrix and calculate word frequencies
+democrat_matrix <- as.matrix(democrat_tdm)
+
+democrat_freq <- sort(rowSums(democrat_matrix))
+```
+
+```{r}
+# visualize for democrat
+wordcloud(names(democrat_freq), democrat_freq,
+          max.words = 75, colors = brewer.pal(10, "Dark2"))
+```
