@@ -15,6 +15,8 @@ library(readtext)
 # load the files
 setwd("~/Desktop/text-analysis/State of the union")
 democrat <- readtext("Democrat.docx")
+republic <- readtext("Republican.docx")
+
 ```
 
 ```{r}
@@ -30,20 +32,30 @@ preprocess_text <- function(text) {
 
 # Preprocess both texts
 democrat_corpus <- preprocess_text(democrat)
+republic_corpus <- preprocess_text(republic)
 ```
 
 ```{r}
 # create matrix
 democrat_tdm <- TermDocumentMatrix(democrat_corpus)
+republic_tdm <- TermDocumentMatrix(republic_corpus)
+
 
 # Convert to matrix and calculate word frequencies
 democrat_matrix <- as.matrix(democrat_tdm)
+republic_matrix <- as.matrix(republic_tdm)
+
 
 democrat_freq <- sort(rowSums(democrat_matrix))
+republic_freq <- sort(rowSums(republic_matrix))
 ```
 
 ```{r}
 # visualize for democrat
 wordcloud(names(democrat_freq), democrat_freq,
-          max.words = 75, colors = brewer.pal(10, "Dark2"))
+          max.words = 30, colors = brewer.pal(10, "Dark2"))
+
+# visualize for republic
+wordcloud(names(republic_freq), republic_freq,
+          max.words = 30, colors = brewer.pal(10, "Dark2"))
 ```
