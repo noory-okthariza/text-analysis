@@ -9,6 +9,9 @@ editor: visual
 library(tm)
 library(wordcloud) 
 library(readtext)
+library(wordcloud2)
+library(htmlwidgets)
+library(webshot)
 ```
 
 ```{r}
@@ -26,7 +29,8 @@ preprocess_text <- function(text) {
   corpus <- tm_map(corpus, content_transformer(tolower)) # Convert to lowercase
   corpus <- tm_map(corpus, removePunctuation)           # Remove punctuation
   corpus <- tm_map(corpus, removeNumbers)               # Remove numbers
-  corpus <- tm_map(corpus, removeWords, stopwords("en")) # Remove stopwords
+ custom_stopwords <- c(stopwords("english"), "already", "also", "cant", "can", "and", "able", "ago", "away", "across", "ask", "around", "another", "americas", "come", "back", "almost", "came", "applause", "become", "became", "always", "begin") 
+corpus <- tm_map(corpus, removeWords, custom_stopwords)          # Remove stopwords
   return(corpus)
 }
 
@@ -51,11 +55,108 @@ republic_freq <- sort(rowSums(republic_matrix))
 ```
 
 ```{r}
-# visualize for democrat
-wordcloud(names(democrat_freq), democrat_freq,
-          max.words = 30, colors = brewer.pal(10, "Dark2"))
+# Preprocessing Function
+preprocess_text <- function(text) {
+  corpus <- Corpus(VectorSource(text))
+  corpus <- tm_map(corpus, content_transformer(tolower))       # Convert to lowercase
+  corpus <- tm_map(corpus, removePunctuation)                 # Remove punctuation
+  corpus <- tm_map(corpus, removeNumbers)                     # Remove numbers
+  corpus <- tm_map(corpus, stripWhitespace)                   # Remove extra whitespace
+  custom_stopwords <- c(
+    stopwords ("english"), "already", "also", "cant", "can", 
+    "and", "able", "ago", "away", "across", "ask", "around", 
+    "another", "americas", "come", "back", "almost", "came", 
+    "applause", "become", "became", "always", "begin", "americans", "will", "every", "thats")
+  corpus <- tm_map(corpus, removeWords, custom_stopwords)      # Remove stopwords
+  return(corpus)
+}
 
-# visualize for republic
-wordcloud(names(republic_freq), republic_freq,
-          max.words = 30, colors = brewer.pal(10, "Dark2"))
+# Preprocess both texts
+democrat_corpus <- preprocess_text(democrat)
+republic_corpus <- preprocess_text(republic)
+
+# Preprocess the text data
+democrat_corpus <- preprocess_text(democrat)
+
+# Create Term-Document Matrix
+democrat_tdm <- TermDocumentMatrix(democrat_corpus)
+democrat_matrix <- as.matrix(democrat_tdm)
+
+# Calculate word frequencies
+democrat_freq <- sort(rowSums(democrat_matrix), decreasing = TRUE)
+
+# Create a dataframe of words and their frequencies
+word_data <- data.frame(
+  word = names(democrat_freq),
+  freq = democrat_freq,
+  stringsAsFactors = FALSE
+)
+
+# Filter words with a minimum frequency of 20
+word_data <- subset(word_data, freq >= 25)
+
+# Define the frequency threshold (top 20% of frequent words)
+threshold <- quantile(word_data$freq, 0.91)
+
+# Assign colors explicitly based on frequency
+word_data$color <- ifelse(
+  word_data$freq >= threshold,
+  "red",           # Highlight frequent words
+  "grey"           # Fade less frequent words
+)
+
+# Generate wordcloud with custom colors
+wc <- wordcloud2(
+  word_data,
+  size = 0.6,
+  shape = "circle",
+  color = word_data$color  # Pass the color vector
+)
+
+# Save wordcloud as HTML and PNG
+saveWidget(wc, "wordcloud.html", selfcontained = T)
+webshot::webshot("wordcloud.html", file = "wordcloud2.png", delay = 5)
+```
+
+```{r}
+# Load required libraries
+library(tm)
+library(wordcloud)
+
+# Preprocessing Function
+preprocess_text <- function(text) {
+  corpus <- Corpus(VectorSource(text))
+  corpus <- tm_map(corpus, content_transformer(tolower))    
+  corpus <- tm_map(corpus, removePunctuation)               
+  corpus <- tm_map(corpus, removeNumbers)                   
+  corpus <- tm_map(corpus, stripWhitespace)                 
+  custom_stopwords <- c(
+    stopwords("english"), "already", "also", "cant", "can", 
+    "and", "able", "ago", "away", "across", "ask", "around", 
+    "another", "americas", "come", "back", "almost", "came", 
+    "applause", "become", "became", "always", "begin",
+    "americans", "will", "every", "thats")
+  corpus <- tm_map(corpus, removeWords, custom_stopwords)   
+  return(corpus)
+}
+
+# Preprocess the text data
+democrat_corpus <- preprocess_text(democrat)
+
+# Create Term-Document Matrix
+democrat_tdm <- TermDocumentMatrix(democrat_corpus)
+democrat_matrix <- as.matrix(democrat_tdm)
+
+# Calculate word frequencies
+democrat_freq <- sort(rowSums(democrat_matrix), decreasing = TRUE)
+
+# save as png
+png("wordcloud.png", width = 800, height = 800) 
+
+wordcloud(words = names(democrat_freq),
+          freq = democrat_freq,
+          min.freq = 30,                
+          scale = c(6, 0.7),             
+          random.order = FALSE,           
+          colors = brewer.pal(4, "Dark2"))
 ```
