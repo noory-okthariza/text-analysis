@@ -1,54 +1,75 @@
-# Load libraries
+---
+title: "Topic Modelling"
+format: html
+editor: visual
+---
+
+```{r}
+#| message: FALSE
+#| warning: FALSE
+
+# Load libraries and data
 library(readtext)
 library(tidyverse)
 library(tidytext)
 library(topicmodels)
 library(ggplot2)
 
-# Read and clean text
+setwd("~/Desktop/text-analysis/State of the union")
 democrat <- readtext("democrat.docx")
 
+```
+
+# Pre-processing the data
+
+```{r}
 # Clean and split text into paragraphs
 democrat_paragraphs <- democrat %>%
   unnest_tokens(paragraph, text, token = "regex", pattern = "\n") %>%
   filter(paragraph != "")
 
+
 # Create a Document-Term Matrix (DTM)
 dtm <- democrat_paragraphs %>%
-  unnest_tokens(word, paragraph) %>%
-  anti_join(stop_words, by = "word") %>%
-  count(row_number(), word) %>% # Use row_number() directly for doc_id
+  unnest_tokens(word, paragraph) %>% # automatically set text to lower cases and remove punctuation
+  anti_join(stop_words, by = "word") %>% 
+  count(row_number(), word) %>% 
   cast_dtm(document = row_number(), term = word, value = n)
+```
 
+# Fitting the model
+
+```{r}
 # Fit LDA model
 lda_model <- LDA(dtm, k = 5, control = list(seed = 1234))
 
-# Get the top terms for each topic
-top_terms <- terms(lda_model, 10)
-print(top_terms)
+# Get the top words for each topic
+top_words <- terms(lda_model, 10)
+```
 
+## 1. Extracting latent topic 
+
+```{r}
 # Extract the word-topic probabilities and plot top words
 tidy(lda_model, matrix = "beta") %>%
   group_by(topic) %>%
   slice_max(beta, n = 10) %>%
   ggplot(aes(x = reorder_within(term, beta, topic), y = beta, fill = factor(topic))) +
-  geom_col(show.legend = FALSE) +
+  geom_col(show.legend = F) +
   facet_wrap(~ topic, scales = "free_y") +
   coord_flip() +
   scale_x_reordered() +
   labs(
-    title = "Top Words for Each Topic",
-    x = "Words",
+    title = "Fig 1. Top words for each latent topic",
+    x = "Words and Topics",
     y = "Probability"
   ) +
   theme_minimal()
+```
 
+## 2. Knowing the most dominant topic
 
-
-
-
-
-#2. Dominant topic
+```{r}
 # Find the dominant topic for each paragraph
 doc_topics <- posterior(lda_model)$topics
 dominant_topic <- apply(doc_topics, 1, which.max)
@@ -58,22 +79,50 @@ topic_counts <- table(dominant_topic)
 
 # Convert the table to a data frame
 topic_counts_df <- as.data.frame(topic_counts)
-colnames(topic_counts_df) <- c("Topic", "Frequency") # Rename columns
+colnames(topic_counts_df) <- c("Topic", "Frequency")
 
+```
+
+```{r}
 # Visualize the topic dominance
 topic_counts_df %>%
-  ggplot(aes(x = as.factor(Topic), y = Frequency, fill = as.factor(Topic))) + # Convert Topic to factor
-  geom_bar(stat = "identity", show.legend = FALSE) +
+  ggplot(aes(x = as.factor(Topic), y = Frequency, fill = as.factor(Topic))) + 
+  geom_bar(stat = "identity", show.legend = F) +
   labs(
-    title = "Dominant Topics Across Documents",
+    title = "Fig 2. Ranking of dominant topics across documents",
     x = "Topic",
     y = "Number of Documents"
   ) +
   theme_minimal()
 
+```
 
+## 3. Topic co-occurance
 
-# 3. Strenght of association by topic 
+```{r}
+#| message: false
+library(reshape2)
+
+# Calculate pairwise topic co-occurrence probabilities
+co_occurrence <- cor(doc_topics)
+
+# Visualize the co-occurrence matrix
+melt(co_occurrence) %>%
+  ggplot(aes(Var1, Var2, fill = value)) +
+  geom_tile() +
+  scale_fill_gradient2(low = "blue", high = "red", mid = "white", midpoint = 0) +
+  labs(
+    title = "Fig 3. Topic co-occurrence matrix",
+    x = "Topic",
+    y = "Topic",
+    fill = "Correlation"
+  ) +
+  theme_minimal()
+```
+
+## 4. Strength of association by topic
+
+```{r}
 # Calculate maximum association score for each paragraph
 max_topic_association <- apply(doc_topics, 1, max)
 
@@ -83,36 +132,17 @@ association_df <- data.frame(
   dominant_topic = dominant_topic,
   max_association = max_topic_association
 )
+```
 
+```{r}
 # Visualize the association strength
 association_df %>%
   ggplot(aes(x = factor(dominant_topic), y = max_association, fill = factor(dominant_topic))) +
-  geom_boxplot(show.legend = FALSE) +
+  geom_boxplot(show.legend = F) +
   labs(
-    title = "Strength of Topic Association by Dominant Topic",
+    title = "Fig 4. Strength of topic association by dominant topic",
     x = "Dominant Topic",
-    y = "Maximum Association Score"
+    y = "Association Score"
   ) +
   theme_minimal()
-
-
-
-
-#4. Topic co-occurance
-# Calculate pairwise topic co-occurrence probabilities
-co_occurrence <- cor(doc_topics)
-
-# Visualize the co-occurrence matrix
-library(reshape2)
-melt(co_occurrence) %>%
-  ggplot(aes(Var1, Var2, fill = value)) +
-  geom_tile() +
-  scale_fill_gradient2(low = "blue", high = "red", mid = "white", midpoint = 0) +
-  labs(
-    title = "Topic Co-occurrence Matrix",
-    x = "Topic",
-    y = "Topic",
-    fill = "Correlation"
-  ) +
-  theme_minimal()
-
+```
