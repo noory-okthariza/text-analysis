@@ -25,15 +25,18 @@ republic <- readtext("Republican.docx")
 ```{r}
 # cleaning the files
 preprocess_text <- function(text) {
+  library(tm)  # Load the required library
   corpus <- Corpus(VectorSource(text))
-  corpus <- tm_map(corpus, content_transformer(tolower)) # Convert to lowercase
-  corpus <- tm_map(corpus, removePunctuation)           # Remove punctuation
-  corpus <- tm_map(corpus, removeNumbers)               # Remove numbers
- custom_stopwords <- c(stopwords("english"), "already", "also", "cant", "can", "and", "able", "ago", "away", "across", "ask", "around", "another", "americas", "come", "back", "almost", "came", "applause", "become", "became", "always", "begin") 
-corpus <- tm_map(corpus, removeWords, custom_stopwords)          # Remove stopwords
+  corpus <- tm_map(corpus, content_transformer(tolower))  # Convert to lowercase
+  corpus <- tm_map(corpus, removePunctuation)            # Remove punctuation
+  corpus <- tm_map(corpus, removeNumbers)                # Remove numbers
+  custom_stopwords <- c(stopwords("english"), "already", "also", "cant", "can", "and", "able", "ago", "away", 
+                        "across", "ask", "around", "another", "americas", "come", "back", "almost", "came", 
+                        "applause", "become", "became", "always", "begin")
+  corpus <- tm_map(corpus, removeWords, custom_stopwords) # Remove custom stopwords
+  corpus <- tm_map(corpus, stripWhitespace)              # Strip extra whitespace
   return(corpus)
 }
-
 # Preprocess both texts
 democrat_corpus <- preprocess_text(democrat)
 republic_corpus <- preprocess_text(republic)
