@@ -8,6 +8,8 @@ I use the LDA (Latent Dirichlet Allocation) algorithm to conduct an unsupervised
 
 LDA treats a document as consisting of various topics, and topics are broken down into words. In an unsupervised model, we have no prior knowledge about the document, nor do we classify the document into predefined topics. Since the document consists of only one column and one row, we have no prior covariates/IVs that can be used to make predictions (supervised LDA would be fit for that purpose).
 
+The data is available [here](https://github.com/noory-okthariza/text-analysis).
+
 ```{r}
 #| message: FALSE
 #| warning: FALSE
@@ -45,7 +47,7 @@ dtm <- democrat_paragraphs %>%
 
 # Fitting the model
 
-We fit the model by setting the K-parameter. In this case, it is set to 5. Always fine-tune the parameter according to your document to make a more meaningful interpretation.
+We fit the model by setting the K-parameter. In this case, it is set to 5. Don't forget to always fine-tune the parameter according to your document to make a more meaningful interpretation.
 
 ```{r}
 # Fit LDA model
@@ -162,3 +164,5 @@ association_df %>%
   ) +
   theme_minimal()
 ```
+
+Feel free to reach out if you have any questions!
