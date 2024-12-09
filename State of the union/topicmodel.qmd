@@ -156,7 +156,7 @@ association_df %>%
   ggplot(aes(x = factor(dominant_topic), y = max_association, fill = factor(dominant_topic))) +
   geom_boxplot(show.legend = F) +
   labs(
-    title = "Fig 4. Strength of association between 5 topic and document",
+    title = "Fig 4. Strength of association between 5 topics and documents",
     x = "Dominant Topic",
     y = "Association Score"
   ) +
