@@ -111,6 +111,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <section id="pre-processing-the-data" class="level1">
 <h1>Pre-processing the data</h1>
+<p>Since we don’t have multiple documents, LDA would not have enough information to ‘train’ the data into meaningful topics. However, we can address this by treating each paragraph as a ‘document’ and letting R analyze patterns from this collection of paragraphs. In my case, I have 2015 ‘documents.’</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Clean and split text into paragraphs</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>democrat_paragraphs <span class="ot">&lt;-</span> democrat <span class="sc">%&gt;%</span></span>
@@ -128,6 +129,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="fitting-the-model" class="level1">
 <h1>Fitting the model</h1>
+<p>We fit the model by setting the K-parameter. In this case, it is set to 5. Always fine-tune the parameter according to your document to make a more meaningful interpretation.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Fit LDA model</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>lda_model <span class="ot">&lt;-</span> <span class="fu">LDA</span>(dtm, <span class="at">k =</span> <span class="dv">5</span>, <span class="at">control =</span> <span class="fu">list</span>(<span class="at">seed =</span> <span class="dv">1234</span>))</span>
@@ -137,6 +139,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <section id="extracting-latent-topic" class="level2">
 <h2 class="anchored" data-anchor-id="extracting-latent-topic">1. Extracting latent topic</h2>
+<p>Again, we assume no prior knowledge about the topics - the word ‘latent’ in LDA speak for itself.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Extract the word-topic probabilities and plot top words</span></span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">tidy</span>(lda_model, <span class="at">matrix =</span> <span class="st">"beta"</span>) <span class="sc">%&gt;%</span></span>
@@ -164,6 +167,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="knowing-the-most-dominant-topic" class="level2">
 <h2 class="anchored" data-anchor-id="knowing-the-most-dominant-topic">2. Knowing the most dominant topic</h2>
+<p>The first analysis gives us the relationship between words and latent topics, but it doesn’t tell us which topic is the most dominant in the document. We can obtain this information by using the following algorithm.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Find the dominant topic for each paragraph</span></span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>doc_topics <span class="ot">&lt;-</span> <span class="fu">posterior</span>(lda_model)<span class="sc">$</span>topics</span>
@@ -198,6 +202,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="topic-co-occurance" class="level2">
 <h2 class="anchored" data-anchor-id="topic-co-occurance">3. Topic co-occurance</h2>
+<p>Next, we also want to know whether the 5 topics are related to each other—that is, to what extent they are in conversation or stand-alone documents.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(reshape2)</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a></span>
@@ -225,8 +230,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </section>
-<section id="strength-of-association-by-topic" class="level2">
-<h2 class="anchored" data-anchor-id="strength-of-association-by-topic">4. Strength of association by topic</h2>
+<section id="strength-of-association-between-topics-and-documents" class="level2">
+<h2 class="anchored" data-anchor-id="strength-of-association-between-topics-and-documents">4. Strength of association between topics and documents</h2>
+<p>We also want to know how the probability of each topic varies across a corpus of documents. Unlike the second analysis, this analysis focuses on the likelihood of topics throughout the entire corpus rather than calculating individual documents one by one.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate maximum association score for each paragraph</span></span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>max_topic_association <span class="ot">&lt;-</span> <span class="fu">apply</span>(doc_topics, <span class="dv">1</span>, max)</span>
@@ -244,7 +250,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">factor</span>(dominant_topic), <span class="at">y =</span> max_association, <span class="at">fill =</span> <span class="fu">factor</span>(dominant_topic))) <span class="sc">+</span></span>
 <span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_boxplot</span>(<span class="at">show.legend =</span> F) <span class="sc">+</span></span>
 <span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Fig 4. Strength of topic association by dominant topic"</span>,</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Fig 4. Strength of association between 5 topic and document"</span>,</span>
 <span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Dominant Topic"</span>,</span>
 <span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Association Score"</span></span>
 <span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>

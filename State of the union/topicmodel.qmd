@@ -26,6 +26,8 @@ democrat <- readtext("democrat.docx")
 
 # Pre-processing the data
 
+Since we don’t have multiple documents, LDA would not have enough information to ‘train’ the data into meaningful topics. However, we can address this by treating each paragraph as a ‘document’ and letting R analyze patterns from this collection of paragraphs. In my case, I have 2015 ‘documents.’
+
 ```{r}
 # Clean and split text into paragraphs
 democrat_paragraphs <- democrat %>%
@@ -43,6 +45,8 @@ dtm <- democrat_paragraphs %>%
 
 # Fitting the model
 
+We fit the model by setting the K-parameter. In this case, it is set to 5. Always fine-tune the parameter according to your document to make a more meaningful interpretation.
+
 ```{r}
 # Fit LDA model
 lda_model <- LDA(dtm, k = 5, control = list(seed = 1234))
@@ -52,6 +56,8 @@ top_words <- terms(lda_model, 10)
 ```
 
 ## 1. Extracting latent topic
+
+Again, we assume no prior knowledge about the topics - the word 'latent' in LDA speak for itself.
 
 ```{r}
 # Extract the word-topic probabilities and plot top words
@@ -72,6 +78,8 @@ tidy(lda_model, matrix = "beta") %>%
 ```
 
 ## 2. Knowing the most dominant topic
+
+The first analysis gives us the relationship between words and latent topics, but it doesn't tell us which topic is the most dominant in the document. We can obtain this information by using the following algorithm.
 
 ```{r}
 # Find the dominant topic for each paragraph
@@ -103,6 +111,8 @@ topic_counts_df %>%
 
 ## 3. Topic co-occurance
 
+Next, we also want to know whether the 5 topics are related to each other—that is, to what extent they are in conversation or stand-alone documents.
+
 ```{r}
 #| message: false
 library(reshape2)
@@ -124,7 +134,9 @@ melt(co_occurrence) %>%
   theme_minimal()
 ```
 
-## 4. Strength of association by topic
+## 4. Strength of association between topics and documents
+
+We also want to know how the probability of each topic varies across a corpus of documents. Unlike the second analysis, this analysis focuses on the likelihood of topics throughout the entire corpus rather than calculating individual documents one by one.
 
 ```{r}
 # Calculate maximum association score for each paragraph
@@ -144,7 +156,7 @@ association_df %>%
   ggplot(aes(x = factor(dominant_topic), y = max_association, fill = factor(dominant_topic))) +
   geom_boxplot(show.legend = F) +
   labs(
-    title = "Fig 4. Strength of topic association by dominant topic",
+    title = "Fig 4. Strength of association between 5 topic and document",
     x = "Dominant Topic",
     y = "Association Score"
   ) +
