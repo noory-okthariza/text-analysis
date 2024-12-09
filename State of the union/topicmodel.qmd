@@ -1,5 +1,5 @@
 ---
-title: "Topic Modelling"
+title: "A Guide to Unsupervised Topic Modelling"
 format: html
 editor: visual
 ---
@@ -47,7 +47,7 @@ lda_model <- LDA(dtm, k = 5, control = list(seed = 1234))
 top_words <- terms(lda_model, 10)
 ```
 
-## 1. Extracting latent topic 
+## 1. Extracting latent topic
 
 ```{r}
 # Extract the word-topic probabilities and plot top words
