@@ -96,7 +96,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<p>I use the LDA (Latent Dirichlet Allocation) algorithm to conduct an unsupervised topic modeling on the State of the Union addresses delivered by US Presidents from the Democratic Party, starting from President Clinton to the Biden era. I scraped the speech data from <a href="https://millercenter.org/the-presidency/presidential-speeches">millercenter.org</a>and combined all the speeches into a single document</p>
+<p>I use the LDA (Latent Dirichlet Allocation) algorithm to conduct an unsupervised topic modeling on the State of the Union addresses delivered by US Presidents from the Democratic Party, starting from President Clinton to the Biden era. I scraped the speech data from <a href="https://millercenter.org/the-presidency/presidential-speeches">millercenter.org</a> and combined all the speeches into a single document</p>
 <p>LDA treats a document as consisting of various topics, and topics are broken down into words. In an unsupervised model, we have no prior knowledge about the document, nor do we classify the document into predefined topics. Since the document consists of only one column and one row, we have no prior covariates/IVs that can be used to make predictions (supervised LDA would be fit for that purpose).</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Load libraries and data</span></span>
