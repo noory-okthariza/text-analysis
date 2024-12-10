@@ -6,7 +6,7 @@ editor: visual
 
 I use the LDA (Latent Dirichlet Allocation) algorithm to conduct an unsupervised topic modeling on the State of the Union addresses delivered by US Presidents from the Democratic Party, starting from President Clinton to the Biden era. I scraped the speech data from [millercenter.org](https://millercenter.org/the-presidency/presidential-speeches) and combined all the speeches into a single document
 
-LDA treats a document as consisting of various topics, and topics are broken down into words. In an unsupervised model, we have no prior knowledge about the document, nor do we classify the document into predefined topics. Since the document consists of only one column and one row, we have no prior covariates/IVs that can be used to make predictions (supervised LDA would be fit for that purpose).
+LDA treats a document as consisting of various topics, and topics are broken down into words. In an unsupervised model, we have no prior knowledge about the document, nor do we classify the document into predefined topics. Since the document consists of only one column and one row, we don't have any covariates/IVs that can be used to make predictions (supervised LDA would be fit for that purpose).
 
 The data is available [here](https://github.com/noory-okthariza/text-analysis).
 
@@ -28,7 +28,7 @@ democrat <- readtext("democrat.docx")
 
 # Pre-processing the data
 
-Since we don’t have multiple documents, LDA would not have enough information to ‘train’ the data into meaningful topics. However, we can address this by treating each paragraph as a ‘document’ and letting R analyze patterns from this collection of paragraphs. In my case, I have 2015 ‘documents.’
+Since we don’t have multiple documents, LDA would not have enough information to ‘train’ the data into meaningful outputs. However, we can address this by treating each paragraph as a ‘document’ and letting R analyze patterns from this collection of paragraphs. That way, the multiple documents problems is solved. In my case, I have 2015 ‘documents-paragraphs.’
 
 ```{r}
 # Clean and split text into paragraphs
@@ -47,7 +47,7 @@ dtm <- democrat_paragraphs %>%
 
 # Fitting the model
 
-We fit the model by setting the K-parameter. In this case, it is set to 5. Don't forget to always fine-tune the parameter according to your document to make a more meaningful interpretation.
+We fit the model by setting the K-parameter. In this case, it is set to 5. This will allow R to create 5 latent topics from the corpus. Don't forget to always fine-tune the parameter according to your document to make a more meaningful interpretation.
 
 ```{r}
 # Fit LDA model
@@ -164,5 +164,7 @@ association_df %>%
   ) +
   theme_minimal()
 ```
+
+I think LDA is best suited if your research is still in the exploratory stage and you need additional tools to generate hypotheses or identify patterns from messy, unstructured data or text. It should also work well if you're interested in discourse analysis.
 
 Feel free to reach out if you have any questions!
