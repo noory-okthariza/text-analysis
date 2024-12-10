@@ -112,7 +112,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <section id="pre-processing-the-data" class="level1">
 <h1>Pre-processing the data</h1>
-<p>Since we don’t have multiple documents, LDA would not have enough information to ‘train’ the data into meaningful outputs. However, we can address this by treating each paragraph as a ‘document’ and letting R analyze patterns from this collection of paragraphs. That way, the multiple documents problems is solved. In my case, I have 2015 ‘documents-paragraphs.’</p>
+<p>Since we don’t have multiple documents, LDA would not have enough information to ‘train’ the data into meaningful outputs. However, we can address this by treating each paragraph as a ‘document’ and letting R analyze patterns from this collection of paragraphs. That way, the multiple documents problem is solved. In my case, I have 2015 ‘documents-paragraphs.’</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Clean and split text into paragraphs</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>democrat_paragraphs <span class="ot">&lt;-</span> democrat <span class="sc">%&gt;%</span></span>
@@ -120,7 +120,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(paragraph <span class="sc">!=</span> <span class="st">""</span>)</span>
 <span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a Document-Term Matrix (DTM)</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a Document-Term Matrix (DTM) and split paragraphs into text</span></span>
 <span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>dtm <span class="ot">&lt;-</span> democrat_paragraphs <span class="sc">%&gt;%</span></span>
 <span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">unnest_tokens</span>(word, paragraph) <span class="sc">%&gt;%</span> <span class="co"># automatically set text to lower cases and remove punctuation</span></span>
 <span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">anti_join</span>(stop_words, <span class="at">by =</span> <span class="st">"word"</span>) <span class="sc">%&gt;%</span> </span>
