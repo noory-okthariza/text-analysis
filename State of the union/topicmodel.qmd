@@ -59,7 +59,7 @@ top_words <- terms(lda_model, 10)
 
 ## 1. Extracting latent topic
 
-Again, we assume no prior knowledge about the topics - the word 'latent' in LDA speak for itself.
+Again, we assume no prior knowledge about the topics - the word 'latent' in LDA speaks for itself.
 
 ```{r}
 # Extract the word-topic probabilities and plot top words
