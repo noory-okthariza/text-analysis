@@ -37,7 +37,7 @@ democrat_paragraphs <- democrat %>%
   filter(paragraph != "")
 
 
-# Create a Document-Term Matrix (DTM) and split paragraphs into text
+# Create a Document-Term Matrix (DTM) and split paragraphs into words
 dtm <- democrat_paragraphs %>%
   unnest_tokens(word, paragraph) %>% # automatically set text to lower cases and remove punctuation
   anti_join(stop_words, by = "word") %>% 
